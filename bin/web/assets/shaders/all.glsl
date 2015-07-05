@@ -5,8 +5,11 @@ varying vec2 tcoord;
 
 uniform vec2 _resolution;
 uniform vec2 _screen;
+uniform float _opacity;
+uniform float _time;
 uniform int _pixelate;
 uniform int _swap;
+uniform int _vscan;
     
 vec3 gb1 = vec3(155.0, 188.0, 15.0) / 256.0;
 vec3 gb2 = vec3(139.0, 172.0, 15.0) / 256.0;
@@ -37,6 +40,12 @@ vec3 paletteswap(vec3 Clr) {
     return Clr;
 }
 
+vec3 vscan(vec2 Pos, vec2 Res, float Opc, vec3 Clr) {
+  Clr -= sin(Pos.y * Res.y) * Opc;
+  Clr *= sin(_time * 2.0 + Pos.y * Res.y / 120.0) * 0.18 + 0.92;
+  return Clr;
+}
+
 void main() {
   vec2 p = scale(_screen);
   
@@ -44,11 +53,15 @@ void main() {
     p = pix(p, _resolution);
   }
   
-  vec4 color = texture2D(tex0, p);
+  vec3 color = texture2D(tex0, p).rgb;
   
   if (_swap == 1) {
-    color.rgb = paletteswap(color.rgb);
+    color = paletteswap(color);
   }
   
-  gl_FragColor = color;
+  if (_vscan == 1) {
+    color = vscan(p, _screen, _opacity, color);
+  }
+  
+  gl_FragColor = vec4(color, 1.0);
 }

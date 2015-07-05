@@ -3,22 +3,26 @@ precision mediump float;
 uniform sampler2D tex0;
 varying vec2 tcoord;
 
-uniform vec2 resolution;
-uniform vec2 screen;
-uniform int pixelate;
-uniform int swap;
+uniform vec2 _resolution;
+uniform vec2 _screen;
+uniform int _pixelate;
+uniform int _swap;
+    
+vec3 gb1 = vec3(155.0, 188.0, 15.0) / 256.0;
+vec3 gb2 = vec3(139.0, 172.0, 15.0) / 256.0;
+vec3 gb3 = vec3( 48.0,  98.0, 48.0) / 256.0;
+vec3 gb4 = vec3( 15.0,  56.0, 15.0) / 256.0;
 
 vec2 scale(vec2 Scr) {
-    return gl_FragCoord.xy / Scr.xy;
+    return gl_FragCoord.xy / Scr;
+}
+
+vec2 pix(vec2 Pos, vec2 Res) {
+    return floor(Pos * Res) / Res;
 }
 
 vec3 paletteswap(vec3 Clr) {
     Clr.r = Clr.g = Clr.b;
-    
-    vec3 gb1 = vec3(155.0, 188.0, 15.0) / 256.0;
-    vec3 gb2 = vec3(139.0, 172.0, 15.0) / 256.0;
-    vec3 gb3 = vec3( 48.0,  98.0, 48.0) / 256.0;
-    vec3 gb4 = vec3( 15.0,  56.0, 15.0) / 256.0;
     
     if (Clr.r >= 0.75) {
         Clr.rgb = gb1;
@@ -34,15 +38,15 @@ vec3 paletteswap(vec3 Clr) {
 }
 
 void main() {
-  vec2 p = scale(screen);
+  vec2 p = scale(_screen);
   
-  if (pixelate == 1) {
-    p = floor(p * resolution) / resolution;
+  if (_pixelate == 1) {
+    p = pix(p, _resolution);
   }
   
   vec4 color = texture2D(tex0, p);
   
-  if (swap == 1) {
+  if (_swap == 1) {
     color.rgb = paletteswap(color.rgb);
   }
   

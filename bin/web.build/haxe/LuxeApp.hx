@@ -34,6 +34,13 @@ class LuxeApp {
         #end //mobile
 
         
+        //Apply the values if they are set
+            _conf.window.width = 1024;
+            _conf.window.height = 768;
+            
+            
+            
+            
 
             //Create the runtime
         _snow = new Snow();

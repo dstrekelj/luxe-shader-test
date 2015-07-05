@@ -1,6 +1,7 @@
 import luxe.Input;
 import luxe.resource.Resource.JSONResource;
 import luxe.Resources;
+import luxe.Timer;
 import luxe.Vector;
 import luxe.Color;
 import luxe.components.sprite.SpriteAnimation;
@@ -12,6 +13,8 @@ import phoenix.Batcher;
 import phoenix.RenderTexture;
 import phoenix.Shader;
 import phoenix.Texture;
+import sprites.PipeWorks;
+import states.StateManager;
 
 class Main extends luxe.Game
 {
@@ -31,13 +34,16 @@ class Main extends luxe.Game
             textures: [
                 { id: 'assets/bodies/jim.png' },
                 { id: 'assets/bodies/rat.png' },
-                { id: 'assets/bodies/rat_king.png' }
+                { id: 'assets/bodies/rat_king.png' },
+                { id: 'assets/static/pipe_works_banner1.png' }
             ],
             shaders: [
-                { id: 'invert', frag_id: 'assets/shaders/invert.glsl', vert_id: 'default' },
-                { id: 'underwater', frag_id: 'assets/shaders/underwater.glsl', vert_id: 'default' },
-                { id: 'pixelate', frag_id: 'assets/shaders/pixelate.glsl', vert_id: 'default' },
-                { id: 'gameboy', frag_id: 'assets/shaders/gameboy.glsl', vert_id: 'default' }
+                //{ id: 'invert', frag_id: 'assets/shaders/invert.glsl', vert_id: 'default' },
+                //{ id: 'underwater', frag_id: 'assets/shaders/underwater.glsl', vert_id: 'default' },
+                //{ id: 'pixelate', frag_id: 'assets/shaders/pixelate.glsl', vert_id: 'default' },
+                { id: 'gameboy', frag_id: 'assets/shaders/gameboy.glsl', vert_id: 'default' },
+                //{ id: 'scanlines', frag_id: 'assets/shaders/scanlines.glsl', vert_id: 'default' },
+                { id: 'all', frag_id: 'assets/shaders/all.glsl', vert_id: 'default' }
             ]
         });
         
@@ -62,12 +68,9 @@ class Main extends luxe.Game
     
     private function loadAssets(P : Parcel)
     {
-        new Jim();
-        new Rat();
-        new RatKing();
+        new PipeWorks();
         
-        //_shader = Luxe.resources.shader('pixelate');
-        _shader = Luxe.resources.shader('gameboy');
+        _shader = Luxe.resources.shader('all');
         
         _view = new Sprite({
             centered: false,
@@ -78,14 +81,15 @@ class Main extends luxe.Game
             batcher: _batch
         });
         
-        _resolution = new Vector(160.0, 144.0);
-        _pixelate = false;
-        _swap = false;
+        _screen = Luxe.screen.size;
         
-        _shader.set_int('pixelate', 0);
-        _shader.set_int('swap', 0);
-        _shader.set_vector2('resolution', _resolution);
-        _shader.set_vector2('screen', Luxe.screen.size);
+        _shader.set_vector2('_resolution', _resolution);
+        _shader.set_vector2('_screen', _screen);
+        _shader.set_float('_opacity', _opacity);
+        _shader.set_float('_time', 1.0);
+        _shader.set_int('_pixelate', _pixelate);
+        _shader.set_int('_swap', _swap);
+        _shader.set_int('_vscan', _vscan);
     }
     
     override function onprerender()
@@ -107,37 +111,41 @@ class Main extends luxe.Game
     {
         if (_shader != null)
         {
-            //_shader.set_float('resolution', 64.0);
+            _shader.set_float('_time', Luxe.time);
         }
     }
     
     override function onkeydown(E : KeyEvent)
     {
-        if (E.keycode == Key.key_1)
-        {
-            _resolution.x += 10.0;
-            _resolution.y += 10.0;
-            _shader.set_vector2('resolution', _resolution);
-        }
-        if (E.keycode == Key.key_q)
-        {
-            _resolution.x -= 10.0;
-            _resolution.y -= 10.0;
-            _shader.set_vector2('resolution', _resolution);
-        }
         if (E.keycode == Key.key_a)
         {
-            _pixelate = !_pixelate;
-            _shader.set_int('pixelate', _pixelate ? 1 : 0);
+            _pixelate = (_pixelate == 1 ? 0 : 1);
+            _shader.set_int('_pixelate', _pixelate);
         }
+        
         if (E.keycode == Key.key_s)
         {
-            _swap = !_swap;
-            _shader.set_int('swap', _swap ? 1 : 0);
+            _swap = (_swap == 1 ? 0 : 1);
+            _shader.set_int('_swap', _swap);
+        }
+        
+        if (E.keycode == Key.key_d)
+        {
+            _vscan = (_vscan == 1 ? 0 : 1);
+            _shader.set_int('_vscan', _vscan);
         }
     }
     
-    private var _resolution : Vector;
-    private var _pixelate : Bool;
-    private var _swap : Bool;
+    // Add pixelisation?
+    private var _pixelate : Int = 0;
+    // Do palette swap?
+    private var _swap : Int = 0;
+    // Add vertical scanlines?
+    private var _vscan : Int = 0;
+    // Scanline opacity
+    private var _opacity : Float = 0.03;
+    // Resolution to scale up
+    private var _resolution : Vector = new Vector(240.0, 180.0);
+    // Game screen size
+    private var _screen : Vector;
 }

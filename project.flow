@@ -1,4 +1,10 @@
 {
+  luxe : {
+    window : {
+        height : 768,
+        width : 1024
+    }
+  },
   project : {
     name : 'Guide',
     version : '1.0.0',
