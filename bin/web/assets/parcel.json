@@ -1,0 +1,8 @@
+{
+    "textures" : [
+        { "id" : "assets/jim.png" }
+    ],
+    "jsons" : [
+        { "id" : "assets/jim-animation.json" }
+    ]
+}
