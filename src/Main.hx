@@ -35,7 +35,8 @@ class Main extends luxe.Game
                 { id: 'assets/bodies/jim.png' },
                 { id: 'assets/bodies/rat.png' },
                 { id: 'assets/bodies/rat_king.png' },
-                { id: 'assets/static/pipe_works_banner1.png' }
+                { id: 'assets/static/pipe_works_banner1.png' },
+                { id: 'assets/static/pipe_works_banner2.jpg' }
             ],
             shaders: [
                 //{ id: 'invert', frag_id: 'assets/shaders/invert.glsl', vert_id: 'default' },
@@ -87,8 +88,10 @@ class Main extends luxe.Game
         _shader.set_vector2('_screen', _screen);
         _shader.set_float('_opacity', _opacity);
         _shader.set_float('_time', 1.0);
+        _shader.set_int('_curve', _curve);
         _shader.set_int('_pixelate', _pixelate);
         _shader.set_int('_swap', _swap);
+        _shader.set_int('_vignette', _vignette);
         _shader.set_int('_vscan', _vscan);
     }
     
@@ -134,6 +137,18 @@ class Main extends luxe.Game
             _vscan = (_vscan == 1 ? 0 : 1);
             _shader.set_int('_vscan', _vscan);
         }
+        
+        if (E.keycode == Key.key_f)
+        {
+            _curve = (_curve == 1 ? 0 : 1);
+            _shader.set_int('_curve', _curve);
+        }
+        
+        if (E.keycode == Key.key_g)
+        {
+            _vignette = (_vignette == 1 ? 0 : 1);
+            _shader.set_int('_vignette', _vignette);
+        }
     }
     
     // Add pixelisation?
@@ -142,10 +157,12 @@ class Main extends luxe.Game
     private var _swap : Int = 0;
     // Add vertical scanlines?
     private var _vscan : Int = 0;
+    private var _curve : Int = 0;
+    private var _vignette : Int = 0;
     // Scanline opacity
-    private var _opacity : Float = 0.03;
+    private var _opacity : Float = 0.05;
     // Resolution to scale up
-    private var _resolution : Vector = new Vector(240.0, 180.0);
+    private var _resolution : Vector = new Vector(320.0, 240.0);
     // Game screen size
     private var _screen : Vector;
 }

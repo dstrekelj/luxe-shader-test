@@ -7,8 +7,10 @@ uniform vec2 _resolution;
 uniform vec2 _screen;
 uniform float _opacity;
 uniform float _time;
+uniform int _curve;
 uniform int _pixelate;
 uniform int _swap;
+uniform int _vignette;
 uniform int _vscan;
     
 vec3 gb1 = vec3(155.0, 188.0, 15.0) / 256.0;
@@ -41,13 +43,38 @@ vec3 paletteswap(vec3 Clr) {
 }
 
 vec3 vscan(vec2 Pos, vec3 Clr) {
-  Clr -= sin(Pos.y * _screen.y) * _opacity;
-  Clr *= sin(_time * 2.0 + Pos.y * _screen.y / 120.0) * 0.18 + 0.92;
+  //Clr -= sin(Pos.y * _screen.y) * _opacity;
+  // Scanlines
+  Clr -= sin(_time * 10.0 + Pos.y * _screen.y * 1.5) * _opacity;
+  // Big 'refresh rate' bar thing
+  Clr *= sin(_time * 1.5 + Pos.y * _screen.y / 100.0) * 0.2 + 0.8;
+  // Flicker
+  Clr *= 0.998 + 0.02 * sin(60.0 * _time);
+  
   return Clr;
+}
+
+vec2 curve(vec2 Pos) {
+  Pos = (Pos - 0.5) * 2.0;
+  Pos.xy *= 1.0 + pow(Pos.yx / 4.0, vec2(2.0));
+  Pos = (Pos / 2.0) + 0.5;
+  
+  return Pos;
+}
+
+vec3 vignette(vec2 Pos, vec3 Clr) {
+    float v = (10.0 * (1.0 - Pos.x) * Pos.x * (1.0 - Pos.y) * Pos.y);
+    Clr *= vec3(pow(v, 0.25));
+    
+    return Clr;
 }
 
 void main() {
   vec2 p = scale();
+  
+  if (_curve == 1) {
+    p = curve(p);
+  }
   
   if (_pixelate == 1) {
     p = pixelate(p);
@@ -61,6 +88,10 @@ void main() {
   
   if (_vscan == 1) {
     color = vscan(p, color);
+  }
+  
+  if (_vignette == 1) {
+    color = vignette(p, color);
   }
   
   gl_FragColor = vec4(color, 1.0);

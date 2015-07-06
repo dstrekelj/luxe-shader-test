@@ -426,8 +426,10 @@ luxe.Game.prototype = $extend(luxe.Emitter.prototype,{
 	,__class__: luxe.Game
 });
 var Main = function() {
-	this._resolution = new phoenix.Vector(240.0,180.0);
-	this._opacity = 0.03;
+	this._resolution = new phoenix.Vector(320.0,240.0);
+	this._opacity = 0.05;
+	this._vignette = 0;
+	this._curve = 0;
 	this._vscan = 0;
 	this._swap = 0;
 	this._pixelate = 0;
@@ -438,7 +440,7 @@ Main.__name__ = ["Main"];
 Main.__super__ = luxe.Game;
 Main.prototype = $extend(luxe.Game.prototype,{
 	ready: function() {
-		var parcel = new luxe.Parcel({ jsons : [{ id : "assets/bodies/jim.json"},{ id : "assets/bodies/rat.json"},{ id : "assets/bodies/rat_king.json"}], textures : [{ id : "assets/bodies/jim.png"},{ id : "assets/bodies/rat.png"},{ id : "assets/bodies/rat_king.png"},{ id : "assets/static/pipe_works_banner1.png"}], shaders : [{ id : "gameboy", frag_id : "assets/shaders/gameboy.glsl", vert_id : "default"},{ id : "all", frag_id : "assets/shaders/all.glsl", vert_id : "default"}]});
+		var parcel = new luxe.Parcel({ jsons : [{ id : "assets/bodies/jim.json"},{ id : "assets/bodies/rat.json"},{ id : "assets/bodies/rat_king.json"}], textures : [{ id : "assets/bodies/jim.png"},{ id : "assets/bodies/rat.png"},{ id : "assets/bodies/rat_king.png"},{ id : "assets/static/pipe_works_banner1.png"},{ id : "assets/static/pipe_works_banner2.jpg"}], shaders : [{ id : "gameboy", frag_id : "assets/shaders/gameboy.glsl", vert_id : "default"},{ id : "all", frag_id : "assets/shaders/all.glsl", vert_id : "default"}]});
 		new luxe.ParcelProgress({ parcel : parcel, background : new phoenix.Color(1,1,1,0.5), oncomplete : $bind(this,this.loadAssets)});
 		parcel.load();
 		this._output = new phoenix.RenderTexture({ id : "sample-rtt", width : Luxe.core.screen.get_w(), height : Luxe.core.screen.get_h()});
@@ -453,8 +455,10 @@ Main.prototype = $extend(luxe.Game.prototype,{
 		this._shader.set_vector2("_screen",this._screen);
 		this._shader.set_float("_opacity",this._opacity);
 		this._shader.set_float("_time",1.0);
+		this._shader.set_int("_curve",this._curve);
 		this._shader.set_int("_pixelate",this._pixelate);
 		this._shader.set_int("_swap",this._swap);
+		this._shader.set_int("_vignette",this._vignette);
 		this._shader.set_int("_vscan",this._vscan);
 	}
 	,onprerender: function() {
@@ -481,6 +485,14 @@ Main.prototype = $extend(luxe.Game.prototype,{
 		if(E.keycode == snow.system.input.Keycodes.key_d) {
 			if(this._vscan == 1) this._vscan = 0; else this._vscan = 1;
 			this._shader.set_int("_vscan",this._vscan);
+		}
+		if(E.keycode == snow.system.input.Keycodes.key_f) {
+			if(this._curve == 1) this._curve = 0; else this._curve = 1;
+			this._shader.set_int("_curve",this._curve);
+		}
+		if(E.keycode == snow.system.input.Keycodes.key_g) {
+			if(this._vignette == 1) this._vignette = 0; else this._vignette = 1;
+			this._shader.set_int("_vignette",this._vignette);
 		}
 	}
 	,__class__: Main
